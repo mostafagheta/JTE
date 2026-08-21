@@ -38,6 +38,7 @@ pipeline {
         
         stage('Build & Test') {
             when {
+                branch 'dev'
                 environment name: 'SKIP_PIPELINE', value: ''
             }
             steps {
@@ -50,6 +51,7 @@ pipeline {
         
         stage('Code Analysis') {
             when {
+                branch 'dev'
                 environment name: 'SKIP_PIPELINE', value: ''
             }
             steps {
@@ -73,6 +75,7 @@ pipeline {
         
         stage('Package Artifact') {
             when {
+                branch 'dev'
                 environment name: 'SKIP_PIPELINE', value: ''
             }
             steps {
@@ -82,8 +85,9 @@ pipeline {
             }
         }
         
-        stage('Containerize & Scan') {
+        stage('Containerize & Scan (Dev Only)') {
             when {
+                branch 'dev'
                 environment name: 'SKIP_PIPELINE', value: ''
             }
             steps {
@@ -131,16 +135,43 @@ pipeline {
             }
         }
         
-        stage('Production Approval') {
+        stage('Promote & Merge Dev -> Test') {
             when {
+                branch 'dev'
+                environment name: 'SKIP_PIPELINE', value: ''
+            }
+            steps {
+                script {
+                    echo "Dev Pipeline successful! Promoting code to test branch via git merge..."
+                    autoMerge(targetBranch: 'test')
+                }
+            }
+        }
+        
+        stage('Approval & Merge Test -> Prod') {
+            when {
+                branch 'test'
                 environment name: 'SKIP_PIPELINE', value: ''
             }
             steps {
                 script {
                     validateExitCriteria()
                     timeout(time: 24, unit: 'HOURS') {
-                        input message: 'READY FOR PROD: Approve production deployment?', submitter: 'admin-group'
+                        input message: 'READY FOR PROD: Approve merging these changes into the prod branch?', submitter: 'admin-group'
                     }
+                    echo "Approval granted. Promoting code to prod branch via git merge..."
+                    autoMerge(targetBranch: 'prod')
+                }
+            }
+        }
+        
+        stage('Production Deployment') {
+            when {
+                branch 'prod'
+                environment name: 'SKIP_PIPELINE', value: ''
+            }
+            steps {
+                script {
                     triggerProdDeploy()
                 }
             }

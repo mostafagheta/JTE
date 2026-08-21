@@ -1,5 +1,5 @@
 void call() {
-    def branchName = env.BRANCH_NAME ?: 'dev' // fallback if not multibranch
+    def branchName = env.BRANCH_NAME ?: 'dev'
     echo "Evaluating Target ECR Repository for branch: ${branchName}"
     
     def registry = pipelineConfig.ecr_registry
@@ -7,30 +7,48 @@ void call() {
     def region = pipelineConfig.aws_region
     def baseTag = env.GIT_COMMIT ?: "latest"
 
-    // Map branch to target environment suffix
-    def envSuffix = ""
+    def targetSuffix = ""
+    def sourceSuffix = ""
+
     if (branchName == 'dev') {
-        envSuffix = "dev"
+        targetSuffix = "dev"
     } else if (branchName == 'test') {
-        envSuffix = "test"
+        targetSuffix = "test"
+        sourceSuffix = "dev"
     } else if (branchName == 'main' || branchName == 'master' || branchName == 'prod') {
-        envSuffix = "prod"
+        targetSuffix = "prod"
+        sourceSuffix = "test"
     } else {
         echo "Branch '${branchName}' does not have a mapped ECR repository. Skipping push."
         return
     }
 
-    // e.g. spring-petclinic-dev
-    def targetRepo = "${baseRepo}-${envSuffix}"
+    def targetRepo = "${baseRepo}-${targetSuffix}"
     echo "Pushing Container Image to ECR Repo: ${targetRepo}..."
 
-    sh """
-        aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${registry}
-        
-        # Tag the base built image to the target repository
-        docker tag ${registry}/${baseRepo}:${baseTag} ${registry}/${targetRepo}:${baseTag}
+    sh "aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${registry}"
 
-        # Push exactly to the mapped repo
-        docker push ${registry}/${targetRepo}:${baseTag}
-    """
+    if (branchName == 'dev') {
+        // Image was built locally in Containerize stage, just tag and push
+        sh """
+            docker tag ${registry}/${baseRepo}:${baseTag} ${registry}/${targetRepo}:${baseTag}
+            docker tag ${registry}/${baseRepo}:${baseTag} ${registry}/${targetRepo}:latest
+            
+            docker push ${registry}/${targetRepo}:${baseTag}
+            docker push ${registry}/${targetRepo}:latest
+        """
+    } else {
+        // IMAGE PROMOTION: Pull from previous tier, re-tag, push
+        def sourceRepo = "${baseRepo}-${sourceSuffix}"
+        echo "PROMOTING IMAGE: Pulling ${sourceRepo}:latest to deploy to ${targetRepo}"
+        sh """
+            docker pull ${registry}/${sourceRepo}:latest || echo "Warning: Couldn't pull latest"
+            
+            docker tag ${registry}/${sourceRepo}:latest ${registry}/${targetRepo}:${baseTag}
+            docker tag ${registry}/${sourceRepo}:latest ${registry}/${targetRepo}:latest
+            
+            docker push ${registry}/${targetRepo}:${baseTag}
+            docker push ${registry}/${targetRepo}:latest
+        """
+    }
 }
