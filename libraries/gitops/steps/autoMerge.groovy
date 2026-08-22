@@ -27,18 +27,25 @@ void call(Map mergeConfig) {
               git checkout -B "${targetBranch}" "origin/${sourceBranch}"
             fi
 
-            ASKPASS=\$(mktemp)
-            cat > "\$ASKPASS" << 'EOF'
-#!/bin/sh
-# GitHub rejects account passwords. Always send a PAT via x-access-token.
-case "\$1" in
-  *[Uu]sername*) echo "x-access-token" ;;
-  *) echo "\$GIT_PASSWORD" ;;
-esac
-EOF
-            chmod 700 "\$ASKPASS"
-            GIT_ASKPASS="\$ASKPASS" GIT_TERMINAL_PROMPT=0 git push origin "HEAD:refs/heads/${targetBranch}"
-            rm -f "\$ASKPASS"
+            set +x
+            case "\$GIT_PASSWORD" in
+              ghp_*|github_pat_*|gho_*|ghu_*|ghs_*)
+                ;;
+              *)
+                echo "ERROR: GitHub no longer accepts an account password for git push (HTTPS)."
+                echo "Keep the Jenkins credential as Username with password."
+                echo "Username: your GitHub username (mostafagheta)."
+                echo "Password: a Personal Access Token (not your GitHub login password)."
+                echo "Create one at https://github.com/settings/tokens"
+                echo "Classic token: enable the repo scope."
+                echo "Fine-grained: repo mostafagheta/final_project, Contents Read and write."
+                echo "The token starts with ghp_ or github_pat_ — paste that into the Password field."
+                exit 1
+                ;;
+            esac
+
+            AUTH=\$(printf 'x-access-token:%s' "\$GIT_PASSWORD" | base64 | tr -d '\\n')
+            git -c http.extraHeader="Authorization: Basic \$AUTH" push origin "HEAD:refs/heads/${targetBranch}"
 
             git checkout "${sourceBranch}" || git checkout -B "${sourceBranch}" "origin/${sourceBranch}"
         """
