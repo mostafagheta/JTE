@@ -1,17 +1,29 @@
 /*
-  JTE Global Configuration for App and Infra
-  @merge lets application pipeline_config.groovy add library parameters and keywords.
+  JTE Global Configuration
+  Library parameters live here (first config in the chain) so they are not
+  stripped when the application pipeline_config.groovy is merged.
 */
 @merge jte {
     allow_scm_jenkinsfile = false
 }
 
 @merge libraries {
-    s3_versioning
+    s3_versioning {
+        s3_bucket = "atos-versioning-bucket"
+        s3_version_file = "version.json"
+    }
     java_build
-    security_scan
-    registry
-    gitops
+    security_scan {
+        sonar_project_key = "spring-petclinic-main"
+    }
+    registry {
+        ecr_registry = "130299714330.dkr.ecr.eu-central-1.amazonaws.com"
+        ecr_repo = "petclinic"
+        aws_region = "eu-central-1"
+    }
+    gitops {
+        gitops_repo = "https://github.com/mostafagheta/gitops-repo.git"
+    }
     deploy
     infra
     infra_validation
@@ -19,6 +31,9 @@
 }
 
 @merge keywords {
+    app_name = "spring-petclinic"
+    s3_bucket = "atos-versioning-bucket"
+    s3_version_file = "version.json"
 }
 
 application_environments {

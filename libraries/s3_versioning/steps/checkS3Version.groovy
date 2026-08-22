@@ -1,10 +1,6 @@
 def call(Map args = [:]) {
-    def bucket = args.bucket ?: config.s3_bucket ?: config.bucket
-    def file = args.file ?: config.s3_version_file ?: config.file
-
-    if (!bucket || !file) {
-        error("s3_versioning is missing s3_bucket/s3_version_file. Set them under libraries { s3_versioning { ... } } in the app pipeline_config.groovy, and annotate libraries with @merge in the governance config.")
-    }
+    def bucket = resolveSetting(args, "bucket", "s3_bucket", "atos-versioning-bucket")
+    def file = resolveSetting(args, "file", "s3_version_file", "version.json")
 
     echo "Checking Git commit against S3 version file at s3://${bucket}/${file}..."
 
@@ -39,4 +35,26 @@ def call(Map args = [:]) {
     }
 
     return hasChanges
+}
+
+def resolveSetting(Map args, String argKey, String configKey, String fallback) {
+    def value = asText(args[argKey])
+    if (value) { return value }
+    value = asText(config[configKey])
+    if (value) { return value }
+    value = asText(config[argKey])
+    if (value) { return value }
+    try {
+        value = asText(jte.keywords[configKey])
+        if (value) { return value }
+    } catch (Exception ignored) {}
+    return fallback
+}
+
+def asText(def value) {
+    if (value == null) { return null }
+    if (value instanceof Map) { return null }
+    String text = "${value}".trim()
+    if (text.length() == 0 || text == "null" || text == "[:]") { return null }
+    return text
 }
