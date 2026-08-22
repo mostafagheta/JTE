@@ -1,12 +1,12 @@
 /*
   JTE Global Configuration for App and Infra
-  JTE 2.x looks for pipeline_config.groovy (not pipelineConfig.groovy).
+  @merge lets application pipeline_config.groovy add library parameters and keywords.
 */
-jte {
+@merge jte {
     allow_scm_jenkinsfile = false
 }
 
-libraries {
+@merge libraries {
     s3_versioning
     java_build
     security_scan
@@ -16,6 +16,9 @@ libraries {
     infra
     infra_validation
     common
+}
+
+@merge keywords {
 }
 
 application_environments {

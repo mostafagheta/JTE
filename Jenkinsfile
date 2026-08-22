@@ -20,10 +20,7 @@ pipeline {
         stage('Check Versioning') {
             steps {
                 script {
-                    def hasChanges = checkS3Version(
-                        bucket: pipelineConfig.s3_bucket,
-                        file: pipelineConfig.s3_version_file
-                    )
+                    def hasChanges = checkS3Version()
                     if (!hasChanges) {
                         currentBuild.result = 'SUCCESS'
                         echo "No version changes detected. Skipping pipeline."

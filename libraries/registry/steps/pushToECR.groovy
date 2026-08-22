@@ -2,9 +2,9 @@ void call() {
     def branchName = env.BRANCH_NAME ?: 'dev'
     echo "Evaluating Target ECR Repository for branch: ${branchName}"
     
-    def registry = pipelineConfig.ecr_registry
-    def baseRepo = pipelineConfig.ecr_repo
-    def region = pipelineConfig.aws_region
+    def registry = config.ecr_registry
+    def baseRepo = config.ecr_repo
+    def region = config.aws_region
     def baseTag = env.GIT_COMMIT ?: "latest"
 
     def targetSuffix = ""
