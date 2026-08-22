@@ -30,13 +30,14 @@ void call(Map mergeConfig) {
             ASKPASS=\$(mktemp)
             cat > "\$ASKPASS" << 'EOF'
 #!/bin/sh
+# GitHub rejects account passwords. Always send a PAT via x-access-token.
 case "\$1" in
-  *[Uu]sername*) echo "\$GIT_USERNAME" ;;
+  *[Uu]sername*) echo "x-access-token" ;;
   *) echo "\$GIT_PASSWORD" ;;
 esac
 EOF
             chmod 700 "\$ASKPASS"
-            GIT_ASKPASS="\$ASKPASS" GIT_TERMINAL_PROMPT=0 git push origin "${targetBranch}"
+            GIT_ASKPASS="\$ASKPASS" GIT_TERMINAL_PROMPT=0 git push origin "HEAD:refs/heads/${targetBranch}"
             rm -f "\$ASKPASS"
 
             git checkout "${sourceBranch}" || git checkout -B "${sourceBranch}" "origin/${sourceBranch}"
