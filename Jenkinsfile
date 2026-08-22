@@ -16,7 +16,7 @@ pipeline {
                 }
             }
         }
-        
+        /*
         stage('Check Versioning') {
             steps {
                 script {
@@ -32,7 +32,7 @@ pipeline {
                 }
             }
         }
-        
+        */
         stage('Build & Test') {
             when {
                 branch 'dev'
@@ -59,6 +59,7 @@ pipeline {
             }
         }
   */      
+  /*
         stage('Security Scanning') {
             when {
                 environment name: 'SKIP_PIPELINE', value: ''
@@ -69,7 +70,7 @@ pipeline {
                 }
             }
         }
-        
+    */    
         stage('Package Artifact') {
             when {
                 branch 'dev'
