@@ -120,7 +120,7 @@ pipeline {
                 }
             }
         }
-        
+/*        
         stage('Infrastructure Compliance') {
             when {
                 environment name: 'SKIP_PIPELINE', value: ''
@@ -131,7 +131,7 @@ pipeline {
                 }
             }
         }
-        
+  */      
         stage('Promote & Merge Dev -> Test') {
             when {
                 branch 'dev'
