@@ -45,7 +45,7 @@ pipeline {
                 }
             }
         }
-        
+        /*
         stage('Code Analysis') {
             when {
                 branch 'dev'
@@ -58,7 +58,7 @@ pipeline {
                 }
             }
         }
-        
+  */      
         stage('Security Scanning') {
             when {
                 environment name: 'SKIP_PIPELINE', value: ''
