@@ -15,11 +15,12 @@ void call() {
         }
     } catch (Exception ignored) {}
 
-    echo "Running SonarQube Scanner for ${projectKey} using credential ${credentialId}..."
+    echo "Running SonarQube Scanner on ${env.NODE_NAME} for ${projectKey} using credential ${credentialId}..."
     withCredentials([string(credentialsId: credentialId, variable: 'SONAR_TOKEN')]) {
         withSonarQubeEnv(sonarServer) {
             sh """
-                ./mvnw sonar:sonar \
+                chmod +x ./mvnw || true
+                ./mvnw -B sonar:sonar \
                   -Dsonar.projectKey=${projectKey} \
                   -Dsonar.token=\$SONAR_TOKEN
             """

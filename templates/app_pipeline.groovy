@@ -47,6 +47,9 @@ pipeline {
         }
         
         stage('Code Analysis') {
+            agent {
+                label 'master'
+            }
             when {
                 branch 'dev'
                 environment name: 'SKIP_PIPELINE', value: ''
