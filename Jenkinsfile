@@ -16,7 +16,7 @@ pipeline {
                 }
             }
         }
-        /*
+        
         stage('Check Versioning') {
             steps {
                 script {
@@ -32,7 +32,7 @@ pipeline {
                 }
             }
         }
-        */
+        
         stage('Build & Test') {
             when {
                 branch 'dev'
@@ -64,7 +64,7 @@ pipeline {
                 }
             }
         }      
-  /*
+
         stage('Security Scanning') {
             when {
                 environment name: 'SKIP_PIPELINE', value: ''
@@ -75,7 +75,7 @@ pipeline {
                 }
             }
         }
-    */    
+ 
         stage('Package Artifact') {
             when {
                 branch 'dev'
@@ -125,19 +125,7 @@ pipeline {
                     performanceTests()
                 }
             }
-        }
-/*        
-        stage('Infrastructure Compliance') {
-            when {
-                environment name: 'SKIP_PIPELINE', value: ''
-            }
-            steps {
-                script {
-                    validateInfrastructure()
-                }
-            }
-        }
-  */      
+        }     
         stage('Promote & Merge Dev -> Test') {
             when {
                 branch 'dev'
