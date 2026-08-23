@@ -42,6 +42,9 @@ pipeline {
                 script {
                     buildApp()
                     unitTests()
+                    stash name: 'maven-compiled-classes',
+                        includes: 'target/classes/**,target/test-classes/**',
+                        useDefaultExcludes: false
                 }
             }
         }
@@ -55,6 +58,7 @@ pipeline {
             }
             steps {
                 script {
+                    unstash 'maven-compiled-classes'
                     sonarScan()
                     qualityGate()
                 }
