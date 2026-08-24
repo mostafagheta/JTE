@@ -17,17 +17,29 @@ void call() {
 
     withSonarQubeEnv('SonarQube') {
 
-        def coverage = sh(
+        def response = sh(
             script: """
-                curl -s \
-                "\$SONAR_HOST_URL/api/measures/component?component=${projectKey}&metricKeys=coverage" \
-                | jq -r '.component.measures[0].value'
+                curl -sf \
+                "\$SONAR_HOST_URL/api/measures/component?component=${projectKey}&metricKeys=coverage"
             """,
             returnStdout: true
         ).trim()
 
-        if (!coverage || coverage == 'null') {
-            error "Unable to retrieve code coverage for ${projectKey}"
+        echo "SonarQube coverage API response:"
+        echo response
+
+        def coverage = sh(
+            script: """
+                echo '${response}' |
+                jq -r '.component.measures[]? |
+                       select(.metric == "coverage") |
+                       .value // empty'
+            """,
+            returnStdout: true
+        ).trim()
+
+        if (!coverage) {
+            error "Unable to retrieve code coverage for ${projectKey}. No coverage metric was returned by SonarQube."
         }
 
         def coverageValue = coverage.toBigDecimal()
