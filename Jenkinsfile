@@ -53,7 +53,7 @@ pipeline {
                 script {
                     restoreMavenBuildOutput()
                     sonarScan()
-                    qualityGate(sonar_project_key)
+                    qualityGate()
                 }
             }
         }      
