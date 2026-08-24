@@ -35,20 +35,9 @@ pipeline {
                 script {
                     buildApp()
                     unitTests()
-                    sh '''
-                    echo "Checking JaCoCo report..."
-                    ls -lah target/site/jacoco/ || true
-                    test -f target/site/jacoco/jacoco.xml
-                    '''
+                    checkJacocoReport()
+                    stashMavenBuildOutput()
 
-                    stash name: 'maven-build-output',
-                    includes: '''
-                        target/classes/**,
-                        target/test-classes/**,
-                        target/site/jacoco/**,
-                        target/surefire-reports/**
-                        ''',
-                    useDefaultExcludes: false
                 }
             }
         }
@@ -62,20 +51,9 @@ pipeline {
             }
             steps {
                 script {
-             unstash 'maven-build-output'
-                sh '''
-                    echo "Checking transferred files..."
-
-                    echo "=== Classes ==="
-                    ls -lah target/classes/ | head
-
-                    echo "=== JaCoCo ==="
-                    ls -lah target/site/jacoco/
-
-                    test -f target/site/jacoco/jacoco.xml
-                    '''    
+                    restoreMavenBuildOutput()
                     sonarScan()
-                    qualityGate()
+                    qualityGate(sonar_project_key)
                 }
             }
         }      
