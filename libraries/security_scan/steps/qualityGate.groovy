@@ -1,6 +1,7 @@
 void call() {
 
     def projectKey = "spring-petclinic-main"
+    def sonarCredentialId = "spring-petclinic-main"
 
     echo "Checking SonarQube Quality Gate for ${projectKey}..."
 
@@ -17,40 +18,49 @@ void call() {
 
     withSonarQubeEnv('SonarQube') {
 
-        def response = sh(
-            script: """
-                curl -sf \
-                "\$SONAR_HOST_URL/api/measures/component?component=${projectKey}&metricKeys=coverage"
-            """,
-            returnStdout: true
-        ).trim()
+        withCredentials([
+            string(
+                credentialsId: sonarCredentialId,
+                variable: 'SONAR_TOKEN'
+            )
+        ]) {
 
-        echo "SonarQube coverage API response:"
-        echo response
+            def response = sh(
+                script: """
+                    curl -sf \
+                    -u "\$SONAR_TOKEN:" \
+                    "\$SONAR_HOST_URL/api/measures/component?component=${projectKey}&metricKeys=coverage"
+                """,
+                returnStdout: true
+            ).trim()
 
-        def coverage = sh(
-            script: """
-                echo '${response}' |
-                jq -r '.component.measures[]? |
-                       select(.metric == "coverage") |
-                       .value // empty'
-            """,
-            returnStdout: true
-        ).trim()
+            echo "SonarQube coverage API response:"
+            echo response
 
-        if (!coverage) {
-            error "Unable to retrieve code coverage for ${projectKey}. No coverage metric was returned by SonarQube."
+            def coverage = sh(
+                script: """
+                    echo '${response}' |
+                    jq -r '.component.measures[]? |
+                           select(.metric == "coverage") |
+                           .value // empty'
+                """,
+                returnStdout: true
+            ).trim()
+
+            if (!coverage) {
+                error "Unable to retrieve code coverage for ${projectKey}. No coverage metric was returned by SonarQube."
+            }
+
+            def coverageValue = coverage.toBigDecimal()
+
+            echo "Code coverage: ${coverageValue}%"
+            echo "Required coverage: 80%"
+
+            if (coverageValue < 80) {
+                error "Pipeline aborted: code coverage ${coverageValue}% is below the required 80%"
+            }
+
+            echo "Code coverage check passed."
         }
-
-        def coverageValue = coverage.toBigDecimal()
-
-        echo "Code coverage: ${coverageValue}%"
-        echo "Required coverage: 80%"
-
-        if (coverageValue < 80) {
-            error "Pipeline aborted: code coverage ${coverageValue}% is below the required 80%"
-        }
-
-        echo "Code coverage check passed."
     }
 }
