@@ -9,13 +9,6 @@ pipeline {
     }
     
     stages {
-        stage('Validate Entry Criteria') {
-            steps {
-                script {
-                    validateEntryCriteria()
-                }
-            }
-        }
         
         stage('Check Versioning') {
             steps {
@@ -42,9 +35,20 @@ pipeline {
                 script {
                     buildApp()
                     unitTests()
-                    stash name: 'maven-compiled-classes',
-                        includes: 'target/classes/**,target/test-classes/**',
-                        useDefaultExcludes: false
+                    sh '''
+                    echo "Checking JaCoCo report..."
+                    ls -lah target/site/jacoco/ || true
+                    test -f target/site/jacoco/jacoco.xml
+                    '''
+
+                    stash name: 'maven-build-output',
+                    includes: '''
+                        target/classes/**,
+                        target/test-classes/**,
+                        target/site/jacoco/**,
+                        target/surefire-reports/**
+                        ''',
+                    useDefaultExcludes: false
                 }
             }
         }
@@ -58,7 +62,18 @@ pipeline {
             }
             steps {
                 script {
-                    unstash 'maven-compiled-classes'
+             unstash 'maven-build-output'
+                sh '''
+                    echo "Checking transferred files..."
+
+                    echo "=== Classes ==="
+                    ls -lah target/classes/ | head
+
+                    echo "=== JaCoCo ==="
+                    ls -lah target/site/jacoco/
+
+                    test -f target/site/jacoco/jacoco.xml
+                    '''    
                     sonarScan()
                     qualityGate()
                 }
@@ -113,7 +128,6 @@ pipeline {
             }
         }
         
-        // GitOps syncing is handled automatically by Keel mapping directly to ECR image tag updates
         
         stage('Integration & Performance') {
             when {
@@ -156,16 +170,5 @@ pipeline {
             }
         }
         
-        stage('Production Deployment') {
-            when {
-                branch 'prod'
-                environment name: 'SKIP_PIPELINE', value: ''
-            }
-            steps {
-                script {
-                    triggerProdDeploy()
-                }
-            }
-        }
     }
 }
