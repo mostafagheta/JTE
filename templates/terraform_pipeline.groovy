@@ -2,45 +2,67 @@ pipeline {
     agent {
         label 'ec2-static'
     }
-    
+
+    parameters {
+        choice(
+            name: 'ACTION',
+            choices: ['apply', 'destroy'],
+            description: 'Select Terraform action'
+        )
+    }
+
     options {
         buildDiscarder(logRotator(numToKeepStr: '10'))
         disableConcurrentBuilds()
     }
-    
+
     stages {
-        stage('Terraform Init & Validate') {
+
+        stage('Terraform Init') {
             steps {
-                script {
-                    terraformInit()
-                    terraformValidate()
-                }
+                terraformInit()
             }
         }
-        
+
+        stage('Terraform Validate') {
+            steps {
+                terraformValidate()
+            }
+        }
+
+        stage('Terraform Lint') {
+            steps {
+                terraformLint()
+            }
+        }
+
+        stage('Terraform Security Scan') {
+            steps {
+                terraformSecurity()
+            }
+        }
+
         stage('Terraform Plan') {
             steps {
-                script {
-                    terraformPlan()
-                }
+                terraformPlan()
             }
         }
-        
+
+        stage('Policy / Compliance Check') {
+            steps {
+                terraformPolicy()
+            }
+        }
+
         stage('Approval') {
             steps {
-                script {
-                    timeout(time: 1, unit: 'HOURS') {
-                        input message: 'Approve Terraform Apply?', submitter: 'platform-admins'
-                    }
-                }
+                terraformApproval()
             }
         }
-        
-        stage('Terraform Apply') {
+
+        stage('Terraform Execute') {
             steps {
-                script {
-                    terraformApply()
-                }
+                terraformApply()
             }
         }
     }

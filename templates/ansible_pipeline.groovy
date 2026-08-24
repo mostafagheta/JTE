@@ -2,44 +2,65 @@ pipeline {
     agent {
         label 'ec2-static'
     }
-    
+
     options {
         buildDiscarder(logRotator(numToKeepStr: '10'))
         disableConcurrentBuilds()
     }
-    
+
     stages {
+
+        stage('Ansible Dependencies') {
+            steps {
+                ansibleDependencies()
+            }
+        }
+
+        stage('Ansible Syntax') {
+            steps {
+                ansibleSyntax()
+            }
+        }
+
         stage('Ansible Lint') {
             steps {
-                script {
-                    ansibleLint()
-                }
+                ansibleLint()
             }
         }
-        
-        stage('Ansible Dry Run') {
+
+        stage('Ansible Security Scan') {
             steps {
-                script {
-                    ansiblePlaybook(check: true)
-                }
+                ansibleSecurity()
             }
         }
-        
+
+        stage('EKS Connectivity') {
+            steps {
+                eksConnectivity()
+            }
+        }
+
+        stage('Ansible Check') {
+            steps {
+                ansibleCheck()
+            }
+        }
+
         stage('Approval') {
             steps {
-                script {
-                    timeout(time: 1, unit: 'HOURS') {
-                        input message: 'Approve Ansible Playbook Execution?', submitter: 'platform-admins'
-                    }
-                }
+                ansibleApproval()
             }
         }
-        
+
         stage('Ansible Apply') {
             steps {
-                script {
-                    ansiblePlaybook(check: false)
-                }
+                ansibleApply()
+            }
+        }
+
+        stage('Verify EKS Add-ons') {
+            steps {
+                ansibleVerify()
             }
         }
     }
