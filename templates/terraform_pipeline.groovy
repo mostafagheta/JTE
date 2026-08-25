@@ -1,7 +1,9 @@
 // 1. Set agent node
 node('ec2-static') {
 
-    // 2. Set options / parameters directly if needed or run stages
+    stage('Checkout Terraform Code') {
+        checkout scm
+      }
     stage('Terraform Init') {
         terraformInit()
     }
