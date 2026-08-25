@@ -4,7 +4,7 @@
   stripped when the application pipeline_config.groovy is merged.
 */
 jte {
-    pipeline_template = "templates/infra/Jenkinsfile"
+    pipeline_template = "templates/terraform_pipeline"
 }
 @merge libraries {
     s3_versioning {
