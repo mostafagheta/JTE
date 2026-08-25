@@ -10,7 +10,7 @@ def call() {
 
         tflint --init
 
-        tflint --format compact
+        tflint --format compact --fail-on-error
     '''
 
     echo "Terraform lint completed successfully."
