@@ -2,7 +2,8 @@
 node('ec2-static') {
 
     stage('Checkout Terraform Code') {
-        checkout scm
+        git branch: 'main',
+            url: 'https://github.com/mostafagheta/Infra_repo.git'
       }
     stage('Terraform Init') {
         terraformInit()
