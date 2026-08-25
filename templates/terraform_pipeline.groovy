@@ -66,8 +66,6 @@ pipeline {
             }
         }
           stage('Archive Artifacts') {
-         steps {
             archiveInventory()
-         }
     }
 }
