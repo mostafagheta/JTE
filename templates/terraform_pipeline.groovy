@@ -1,71 +1,40 @@
-pipeline {
-    agent {
-        label 'ec2-static'
+// 1. Set agent node
+node('ec2-static') {
+
+    // 2. Set options / parameters directly if needed or run stages
+    stage('Terraform Init') {
+        terraformInit()
     }
 
-    parameters {
-        choice(
-            name: 'ACTION',
-            choices: ['apply', 'destroy'],
-            description: 'Select Terraform action'
-        )
+    stage('Terraform Validate') {
+        terraformValidate()
     }
 
-    options {
-        buildDiscarder(logRotator(numToKeepStr: '10'))
-        disableConcurrentBuilds()
+    stage('Terraform Lint') {
+        terraformLint()
     }
 
-    stages {
+    stage('Terraform Security Scan') {
+        terraformSecurity()
+    }
 
-        stage('Terraform Init') {
-            steps {
-                terraformInit()
-            }
-        }
+    stage('Terraform Plan') {
+        terraformPlan()
+    }
 
-        stage('Terraform Validate') {
-            steps {
-                terraformValidate()
-            }
-        }
+    stage('Policy / Compliance Check') {
+        terraformPolicy()
+    }
 
-        stage('Terraform Lint') {
-            steps {
-                terraformLint()
-            }
-        }
+    stage('Approval') {
+        terraformApproval()
+    }
 
-        stage('Terraform Security Scan') {
-            steps {
-                terraformSecurity()
-            }
-        }
+    stage('Terraform Execute') {
+        terraformApply()
+    }
 
-        stage('Terraform Plan') {
-            steps {
-                terraformPlan()
-            }
-        }
-
-        stage('Policy / Compliance Check') {
-            steps {
-                terraformPolicy()
-            }
-        }
-
-        stage('Approval') {
-            steps {
-                terraformApproval()
-            }
-        }
-
-        stage('Terraform Execute') {
-            steps {
-                terraformApply()
-            }
-        }
-          stage('Archive Artifacts') {
-            archiveInventory()
+    stage('Archive Artifacts') {
+        archiveInventory()
     }
 }
