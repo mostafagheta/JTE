@@ -2,7 +2,7 @@
   JTE Global Configuration
 */
 jte {
-    pipeline_template = "templates/infra/Jenkinsfile"
+    pipeline_template = "Jenkinsfile"
 }
 
 libraries {
