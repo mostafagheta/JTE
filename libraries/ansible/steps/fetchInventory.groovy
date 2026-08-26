@@ -1,13 +1,11 @@
-stage('Fetch Infrastructure Inventory') {
-    steps {
-        script {
-            step([
-                $class: 'CopyArtifact',
-                projectName: 'infra',
-                selector: [$class: 'LastSuccessfulBuildSelector'],
-                filter: 'inventory.ini, cluster-autoscaler.yaml',
-                fingerprintArtifacts: true
-            ])
-        }
-    }
+def call() {
+    // Use copyArtifacts to fetch the inventory files
+    copyArtifacts(
+        projectName: 'infra',
+        selector: 'last-successful',
+        filter: 'inventory.ini, cluster-autoscaler.yaml',
+        fingerprintArtifacts: true
+    )
+    
+    echo "Inventory files fetched successfully from 'infra' job"
 }
