@@ -1,14 +1,19 @@
 def call() {
+
     echo "========================================"
     echo "Ansible Apply"
     echo "========================================"
 
-    sh '''
-        set -e
+    sshagent(credentials: ['mykey']) {
 
-        ansible-playbook \
-            playbooks/eks-addons.yml
-    '''
+        sh '''
+            set -e
+
+            ansible-playbook \
+                -i inventory.ini \
+                playbooks/eks-addons.yml
+        '''
+    }
 
     echo "Ansible deployment completed successfully."
 }

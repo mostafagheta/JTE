@@ -1,7 +1,7 @@
 def call() {
 
     echo "========================================"
-    echo "Ansible Verification"
+    echo "Ansible SSH Connectivity"
     echo "========================================"
 
     sshagent(credentials: ['mykey']) {
@@ -12,13 +12,8 @@ def call() {
             ansible all \
                 -i inventory.ini \
                 -m ping
-
-            ansible all \
-                -i inventory.ini \
-                -m shell \
-                -a "hostname"
         '''
     }
 
-    echo "Ansible verification completed successfully."
+    echo "SSH connectivity verified successfully."
 }

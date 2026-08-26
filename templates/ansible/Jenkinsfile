@@ -1,0 +1,119 @@
+pipeline {
+
+    agent {
+        label 'ec2-static'
+    }
+
+    options {
+        timestamps()
+        timeout(time: 60, unit: 'MINUTES')
+        disableConcurrentBuilds()
+
+        buildDiscarder(
+            logRotator(
+                numToKeepStr: '10'
+            )
+        )
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Fetch Infrastructure Inventory') {
+            steps {
+                fetchInventory(
+                    projectName: 'infra',
+                    filter: 'inventory.ini , cluster-autoscaler.yaml'
+                )
+            }
+        }
+
+        stage('Validate Inventory') {
+            steps {
+                validateInventory()
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                ansibleDependencies()
+            }
+        }
+
+        stage('Syntax Check') {
+            steps {
+                ansibleSyntax()
+            }
+        }
+
+        stage('Ansible Lint') {
+            steps {
+                ansibleLint()
+            }
+        }
+
+        stage('Security Scan') {
+            steps {
+                ansibleSecurity()
+            }
+        }
+
+        stage('SSH Connectivity') {
+            steps {
+                ansibleConnectivity()
+            }
+        }
+
+        stage('Ansible Check') {
+            steps {
+                ansibleCheck()
+            }
+        }
+
+        stage('Approval') {
+            steps {
+                ansibleApproval()
+            }
+        }
+
+        stage('Ansible Apply') {
+            steps {
+                ansibleApply()
+            }
+        }
+
+        stage('Verify') {
+            steps {
+                ansibleVerify()
+            }
+        }
+    }
+
+    post {
+
+        success {
+            echo '========================================'
+            echo 'ANSIBLE PIPELINE COMPLETED SUCCESSFULLY'
+            echo '========================================'
+        }
+
+        failure {
+            echo '========================================'
+            echo 'ANSIBLE PIPELINE FAILED'
+            echo '========================================'
+        }
+
+        always {
+            archiveArtifacts(
+                artifacts: 'inventory.ini',
+                allowEmptyArchive: true,
+                fingerprint: true
+            )
+        }
+    }
+}
