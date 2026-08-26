@@ -2,7 +2,13 @@ pipeline {
     agent {
         label 'ec2-static'
     }
-    
+    parameters {
+        choice(
+            name: 'ACTION',
+            choices: ['apply', 'destroy'],
+            description: 'Select whether to run terraform apply or terraform destroy'
+        )
+    }
     options {
         buildDiscarder(logRotator(numToKeepStr: '10'))
         disableConcurrentBuilds()
