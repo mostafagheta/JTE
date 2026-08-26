@@ -5,6 +5,7 @@
 */
 @merge jte {
     allow_scm_jenkinsfile = false
+    pipeline_template = "templates/app/Jenkinsfile"
 }
 
 @merge libraries {
