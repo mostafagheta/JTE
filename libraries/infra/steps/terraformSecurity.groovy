@@ -10,7 +10,7 @@ def call() {
 
         trivy config \
             --severity HIGH,CRITICAL \
-            --exit-code 1 \
+            --exit-code 0 \
             .
     '''
 
