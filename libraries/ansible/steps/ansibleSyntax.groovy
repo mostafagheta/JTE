@@ -11,7 +11,7 @@ def call() {
     )]) {
         sh '''
             set -e
-
+            export ANSIBLE_HOST_KEY_CHECKING=False
             # Set key permissions
             chmod 600 $SSH_KEY
 
