@@ -70,6 +70,9 @@ pipeline {
             }
         }
         stage('Archive Artifacts') {
+         when {
+                expression { params.ACTION != 'destroy' }
+            }
          steps {
             archiveInventory()
          }
