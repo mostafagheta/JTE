@@ -28,14 +28,15 @@ pipeline {
             
             }
 
-        stage('Fetch Infrastructure Inventory') {
-            steps {
-                fetchInventory(
-                    projectName: 'infra',
-                    filter: 'inventory.ini , cluster-autoscaler.yaml'
-                )
-            }
-        }
+    stage('Fetch Infrastructure Inventory') {
+    steps {
+        fetchInventory(
+            projectName: 'infra',
+            buildNumber: 'last-successful', 
+            filter: 'inventory.ini, cluster-autoscaler.yaml'
+        )
+    }
+}
 
         stage('Validate Inventory') {
             steps {
