@@ -4,7 +4,6 @@
   stripped when the application pipeline_config.groovy is merged.
 */
 @merge jte {
-    allow_scm_jenkinsfile = false
     pipeline_template = "Jenkinsfile"
 }
 
