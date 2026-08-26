@@ -15,8 +15,14 @@ def call() {
             # Set key permissions
             chmod 600 $SSH_KEY
 
-            ansible bastion -i inventory.ini -m ping --private-key $SSH_KEY 
-            ansible bastion -i inventory.ini -m shell -a "hostname" --private-key $SSH_KEY 
+    echo "--- raw echo test ---"
+    ansible bastion -i inventory.ini -m raw -a "echo ANSIBLE_MARKER_START; echo hello; echo ANSIBLE_MARKER_END" --private-key $SSH_KEY
+
+    echo "--- python version ---"
+    ansible bastion -i inventory.ini -m raw -a "python3 --version" --private-key $SSH_KEY
+
+    echo "--- verbose ping ---"
+    ansible bastion -i inventory.ini -m ping --private-key $SSH_KEY -vvvv
         '''
     }
 
