@@ -4,16 +4,19 @@ def call() {
     echo "Ansible Verification"
     echo "========================================"
 
-
-        withCredentials([file(credentialsId: 'mykey', variable: 'SSH_KEY')]) {
+    withCredentials([sshUserPrivateKey(
+        credentialsId: 'mykey', 
+        keyFileVariable: 'SSH_KEY',
+        usernameVariable: 'SSH_USER'
+    )]) {
         sh '''
             set -e
 
             # Set key permissions
             chmod 600 $SSH_KEY
 
-        ansible bastion -i inventory.ini -m ping --private-key $SSH_KEY
-        ansible bastion -i inventory.ini -m shell -a "hostname" --private-key $SSH_KEY
+            ansible bastion -i inventory.ini -m ping --private-key $SSH_KEY 
+            ansible bastion -i inventory.ini -m shell -a "hostname" --private-key $SSH_KEY 
         '''
     }
 
