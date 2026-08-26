@@ -28,13 +28,16 @@ pipeline {
             
             }
 
-    stage('Fetch Infrastructure Inventory') {
+stage('Fetch Infrastructure Inventory') {
     steps {
-        fetchInventory(
-            projectName: 'infra',
-            buildNumber: 'last-successful', 
-            filter: 'inventory.ini, cluster-autoscaler.yaml'
-        )
+        script {
+            copyArtifacts(
+                projectName: 'infra',
+                selector: 'last-successful',
+                filter: 'inventory.ini, cluster-autoscaler.yaml',
+                fingerprintArtifacts: true
+            )
+        }
     }
 }
 
