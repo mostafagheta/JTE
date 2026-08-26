@@ -1,12 +1,13 @@
-void call(Map config = [:]) {
-    // Get build number from config or use default
-    def buildNumber = config.buildNumber ?: 'last-successful'
-    def projectName = config.projectName ?: 'infra'
-    
-    copyArtifacts(
-        projectName: projectName,
-        selector: specific(buildNumber),
-        filter: config.filter ?: 'inventory.ini, cluster-autoscaler.yaml',
-        fingerprintArtifacts: true
-    )
+stage('Fetch Infrastructure Inventory') {
+    steps {
+        script {
+            step([
+                $class: 'CopyArtifact',
+                projectName: 'infra',
+                selector: [$class: 'LastSuccessfulBuildSelector'],
+                filter: 'inventory.ini, cluster-autoscaler.yaml',
+                fingerprintArtifacts: true
+            ])
+        }
+    }
 }
