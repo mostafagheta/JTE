@@ -8,13 +8,7 @@ def call() {
 
         echo "Running Checkov..."
 
-        checkov \
-            -d . \
-            --framework terraform \
-            --compact \
-            --quiet \
-            --download-external-modules \
-            --soft-fail
+        checkov -d . --framework terraform --compact --quiet --download-external-modules true --soft-fail
     '''
 
     echo "Terraform policy/compliance check completed successfully."
