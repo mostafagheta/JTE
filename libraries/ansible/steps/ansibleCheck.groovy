@@ -11,7 +11,7 @@ def call() {
 
             ansible-playbook \
                 -i inventory.ini \
-                playbooks/eks-addons.yml \
+                ansible/playbooks/install_addons.yml \
                 --check \
                 --diff
         '''

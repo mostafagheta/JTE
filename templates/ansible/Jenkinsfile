@@ -18,11 +18,15 @@ pipeline {
 
     stages {
 
-        stage('Checkout') {
+        stage('Checkout Terraform Code') {
             steps {
-                checkout scm
+            
+            git branch: 'main',
+            url: 'https://github.com/mostafagheta/Infra_repo.git'
+            
+                }
+            
             }
-        }
 
         stage('Fetch Infrastructure Inventory') {
             steps {

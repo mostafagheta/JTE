@@ -9,7 +9,7 @@ def call() {
         sh '''
             set -e
 
-            ansible all \
+            ansible bastion \
                 -i inventory.ini \
                 -m ping
         '''

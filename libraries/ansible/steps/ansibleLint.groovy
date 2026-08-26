@@ -5,7 +5,7 @@ def call() {
 
     sh '''
         set -e
-
+        cd ansible
         ansible-lint .
     '''
 

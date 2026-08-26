@@ -10,7 +10,7 @@ def call() {
             echo "Installing Ansible collections..."
 
             ansible-galaxy collection install \
-                -r requirements.yml \
+                -r ansible/requirements.yml \
                 --force
         else
             echo "No requirements.yml found."
