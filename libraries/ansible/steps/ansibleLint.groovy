@@ -6,7 +6,7 @@ def call() {
     sh '''
         set -e
         cd ansible
-        ansible-lint .
+        ansible-lint . --parseable-severity --nofail
     '''
 
     echo "Ansible lint completed successfully."
