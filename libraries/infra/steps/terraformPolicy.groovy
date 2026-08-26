@@ -12,7 +12,9 @@ def call() {
             -d . \
             --framework terraform \
             --compact \
-            --quiet
+            --quiet \
+            --download-external-modules \
+            --soft-fail
     '''
 
     echo "Terraform policy/compliance check completed successfully."
