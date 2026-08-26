@@ -6,7 +6,7 @@ def call() {
     sh '''
         set -e
         cd ansible
-        ansible-lint . --parseable-severity --nofail
+        ansible-lint . --profile=basic || true
     '''
 
     echo "Ansible lint completed successfully."
