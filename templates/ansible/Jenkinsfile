@@ -18,7 +18,7 @@ pipeline {
 
     stages {
 
-        stage('Checkout Terraform Code') {
+        stage('Checkout Ansible Code') {
             steps {
             
             git branch: 'main',
