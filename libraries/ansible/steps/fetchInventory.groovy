@@ -1,15 +1,13 @@
 void call(Map config = [:]) {
-    // Import Jenkins model if needed
-    import jenkins.model.Jenkins
-    
-    // Get the last successful build of the project
-    def job = Jenkins.instance.getItem(config.projectName)
-    def lastSuccessfulBuild = job?.lastSuccessfulBuild
+    // Accept selector from pipeline or use default
+    def selector = config.get('selector', lastBuild())
+    def projectName = config.get('projectName', 'infra')
+    def filter = config.get('filter', 'inventory.ini, cluster-autoscaler.yaml')
     
     copyArtifacts(
-        projectName: config.projectName,
-        selector: config.get('selector', lastSuccessfulBuild),  // Use property, not method
-        filter: config.get('filter', 'inventory.ini, cluster-autoscaler.yaml'),
+        projectName: projectName,
+        selector: selector,
+        filter: filter,
         fingerprintArtifacts: true
     )
 }
