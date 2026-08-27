@@ -10,6 +10,7 @@ def call() {
             set -e
 
             export ANSIBLE_ROLES_PATH=/home/jenkins/workspace/ansible/ansible/roles
+            ansible bastion -i inventory.ini -m raw -a "sudo yum install -y python3-pip" --become
             ansible-playbook \
                 -i inventory.ini \
                 ansible/playbooks/install_addons.yml \
