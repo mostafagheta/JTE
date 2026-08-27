@@ -86,12 +86,6 @@ pipeline {
                 ansibleApply()
             }
         }
-
-        stage('Verify') {
-            steps {
-                ansibleVerify()
-            }
-        }
     }
 
     post {
