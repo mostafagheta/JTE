@@ -61,7 +61,20 @@ pipeline {
                 }
             }
         }      
-
+        stage('Integration Test') {
+            when {
+                allOf {
+                    branch 'dev'
+                    environment name: 'SKIP_PIPELINE', value: ''
+                    not { changeRequest() }
+                }
+            }
+            steps {
+                script {
+                    integrationTests()
+                }
+            }
+        } 
         stage('Security Scanning') {
             when {
                 environment name: 'SKIP_PIPELINE', value: ''
@@ -119,20 +132,7 @@ pipeline {
             }
         }
         
-        stage('Integration & Performance') {
-            when {
-                allOf {
-                    environment name: 'SKIP_PIPELINE', value: ''
-                    not { changeRequest() }
-                }
-            }
-            steps {
-                script {
-                    integrationTests()
-                    performanceTests()
-                }
-            }
-        }     
+    
         /*
         stage('Promote & Merge Dev -> Test') {
             when {
