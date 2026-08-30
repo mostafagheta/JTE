@@ -28,8 +28,10 @@ pipeline {
         
         stage('Build & Test') {
             when {
-                branch 'dev'
-                environment name: 'SKIP_PIPELINE', value: ''
+                allOf {
+                    branch 'dev'
+                    environment name: 'SKIP_PIPELINE', value: ''
+                }
             }
             steps {
                 script {
@@ -37,17 +39,19 @@ pipeline {
                     unitTests()
                     checkJacocoReport()
                     stashMavenBuildOutput()
-
                 }
             }
         }
+
         stage('Code Analysis') {
             agent {
                 label 'master'
             }
             when {
-                branch 'dev'
-                environment name: 'SKIP_PIPELINE', value: ''
+                allOf {
+                    branch 'dev'
+                    environment name: 'SKIP_PIPELINE', value: ''
+                }
             }
             steps {
                 script {
@@ -71,9 +75,11 @@ pipeline {
  
         stage('Package Artifact') {
             when {
-                branch 'dev'
-                environment name: 'SKIP_PIPELINE', value: ''
-                !changeRequest() 
+                allOf {
+                    branch 'dev'
+                    environment name: 'SKIP_PIPELINE', value: ''
+                    not { changeRequest() }
+                }
             }
             steps {
                 script {
@@ -84,9 +90,11 @@ pipeline {
         
         stage('Containerize & Scan (Dev Only)') {
             when {
-                branch 'dev'
-                environment name: 'SKIP_PIPELINE', value: ''
-                 !changeRequest() 
+                allOf {
+                    branch 'dev'
+                    environment name: 'SKIP_PIPELINE', value: ''
+                    not { changeRequest() }
+                }
             }
             steps {
                 script {
@@ -98,8 +106,10 @@ pipeline {
         
         stage('Publish Artifacts') {
             when {
-                environment name: 'SKIP_PIPELINE', value: ''
-                !changeRequest() 
+                allOf {
+                    environment name: 'SKIP_PIPELINE', value: ''
+                    not { changeRequest() }
+                }
             }
             steps {
                 script {
@@ -109,11 +119,12 @@ pipeline {
             }
         }
         
-        
         stage('Integration & Performance') {
             when {
-                environment name: 'SKIP_PIPELINE', value: ''
-                !changeRequest() 
+                allOf {
+                    environment name: 'SKIP_PIPELINE', value: ''
+                    not { changeRequest() }
+                }
             }
             steps {
                 script {
