@@ -73,6 +73,7 @@ pipeline {
             when {
                 branch 'dev'
                 environment name: 'SKIP_PIPELINE', value: ''
+                !changeRequest() 
             }
             steps {
                 script {
@@ -85,6 +86,7 @@ pipeline {
             when {
                 branch 'dev'
                 environment name: 'SKIP_PIPELINE', value: ''
+                 !changeRequest() 
             }
             steps {
                 script {
@@ -97,6 +99,7 @@ pipeline {
         stage('Publish Artifacts') {
             when {
                 environment name: 'SKIP_PIPELINE', value: ''
+                !changeRequest() 
             }
             steps {
                 script {
@@ -110,6 +113,7 @@ pipeline {
         stage('Integration & Performance') {
             when {
                 environment name: 'SKIP_PIPELINE', value: ''
+                !changeRequest() 
             }
             steps {
                 script {
@@ -118,10 +122,12 @@ pipeline {
                 }
             }
         }     
+        /*
         stage('Promote & Merge Dev -> Test') {
             when {
                 branch 'dev'
                 environment name: 'SKIP_PIPELINE', value: ''
+                !changeRequest() 
             }
             steps {
                 script {
@@ -130,11 +136,14 @@ pipeline {
                 }
             }
         }
+        */
         
+        /*
         stage('Approval & Merge Test -> Prod') {
             when {
                 branch 'test'
                 environment name: 'SKIP_PIPELINE', value: ''
+                !changeRequest() 
             }
             steps {
                 script {
@@ -146,7 +155,7 @@ pipeline {
                     autoMerge(targetBranch: 'prod')
                 }
             }
-        }
+        }*/
         
     }
 }
