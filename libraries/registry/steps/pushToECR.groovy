@@ -51,4 +51,7 @@ void call() {
             docker push ${registry}/${targetRepo}:latest
         """
     }
+
+    // Export the resolved target image so downstream steps (like SBOM) use it
+    env.APP_IMAGE = "${registry}/${targetRepo}:${baseTag}"
 }
