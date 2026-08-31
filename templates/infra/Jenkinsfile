@@ -45,16 +45,14 @@ pipeline {
                 terraformSecurity()
             }
         }
-
-        stage('Terraform Plan') {
-            steps {
-                terraformPlan()
-            }
-        }
-
         stage('Policy / Compliance Check') {
             steps {
                 terraformPolicy()
+            }
+        }
+        stage('Terraform Plan') {
+            steps {
+                terraformPlan()
             }
         }
 
